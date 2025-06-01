@@ -2,7 +2,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 
 BASE_URL = "https://www.terumobct.com/"
 
@@ -19,7 +19,7 @@ def test_logo_is_visible(driver):
         )
         accept_btn.click()
         print("✅ Botón de cookies aceptado")
-    except TimeoutException:
+    except (TimeoutException, ElementClickInterceptedException):
         pass
 
     # Esperar a que cargue el logo principal
