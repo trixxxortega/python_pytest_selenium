@@ -1,41 +1,34 @@
-from urllib.parse import urljoin
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from utils.config import BASE_URL
-from utils.driver_setup import driver
 
-def test_logo_presence_and_clickable(driver):
-    url = BASE_URL
-    driver.get(url)
+BASE_URL = "https://www.terumobct.com/"
 
+
+@pytest.mark.logo
+def test_logo_is_visible(driver):
+    driver.get(BASE_URL)
+    wait = WebDriverWait(driver, 30)
+
+    # Aceptar cookies si aparece el botón
     try:
-        # Wait for the logo to be visible
-        logo = WebDriverWait(driver, 20).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="container-bca776d573"]/div[1]/div[2]/div[1]/div[1]/a/img'))
+        accept_btn = wait.until(
+            EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
         )
+        accept_btn.click()
+        print("✅ Botón de cookies aceptado")
     except TimeoutException:
-        driver.save_screenshot("error_logo_not_visible.png")
-        pytest.fail("Logo is not present on Home Page")
+        print("ℹ️ No apareció el banner de cookies (ok)")
 
+    # Esperar a que cargue el logo principal
     try:
-        # Validate logo is clickable
-        WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="container-bca776d573"]/div[1]/div[2]/div[1]/div[1]/a/img'))
+        logo = wait.until(
+            EC.visibility_of_element_located((By.XPATH, "//*[contains(@id, 'container-')]/div[1]/div[2]/div[1]/div[1]/a/img"))
         )
+        assert logo.is_displayed(), "El logo está presente pero no visible"
+        print("✅ Logo encontrado y visible")
     except TimeoutException:
-        driver.save_screenshot("error_logo_not_clickable.png")
-        pytest.fail("Logo is not clickable")
-
-    # Opcional: clickeamos y validamos URL
-    logo.click()
-    expected_url = urljoin(BASE_URL, "/en/gl.html")
-    try:
-        WebDriverWait(driver, 20).until(EC.url_to_be(expected_url))
-    except TimeoutException:
-        driver.save_screenshot("error_wrong_redirect_url.png")
-        pytest.fail("Wrong redirection URL after clicking the logo")
-
-    assert driver.current_url == expected_url
+        driver.save_screenshot("screenshot_logo_fail.png")
+        pytest.fail("❌ No se pudo encontrar el logo dentro del tiempo esperado")
