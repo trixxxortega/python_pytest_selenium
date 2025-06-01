@@ -20,7 +20,7 @@ def test_logo_is_visible(driver):
         accept_btn.click()
         print("✅ Botón de cookies aceptado")
     except TimeoutException:
-        print("ℹ️ No apareció el banner de cookies (ok)")
+        pass
 
     # Esperar a que cargue el logo principal
     try:
